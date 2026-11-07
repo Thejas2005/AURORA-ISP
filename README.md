@@ -52,37 +52,7 @@ A fixed pipeline struggles when conditions change. Low light, high ISO, clipped 
 - **Training workflow** for SIDD-CC with capture-aware batching, checkpointing and optional mixed precision.
 
 ## Architecture
-
-```
-Image input
-    |
-File detection and validation
-    |
-    +--------------------+----------------------+
-    |                    |                      |
-Bayer RAW          Non-Bayer RAW          Rendered RGB
-    |             (LibRaw -> RGB)          (PNG / JPEG)
-    |                    |                      |
-    |                    +----------+-----------+
-    |                               |
-    |                       RGB enhancement
-    |                               |
-+---+-----------+                   |
-|               |                   |
-Traditional   Learned ISP           |
-ISP           (ONNX U-Net)          |
-|               |                   |
-+-------+-------+                   |
-        |                           |
-        +-------------+-------------+
-                      |
-               Hybrid fusion  <--- Adaptive controller
-                      |
-                Evaluation and metrics
-                      |
-        Processing Studio / FastAPI response
-```
-
+![AURORA system architecture](aurora_architecture.png)
 The diagram groups the pipeline into five stages: **Ingest, Route, Process, Fuse, Evaluate and Deliver**, with a control plane (Adaptive controller, Optimization) feeding the processing stages.
 
 The flow above is conceptual. The RAW and RGB branches are separate, and not every input reaches RAW fusion.
