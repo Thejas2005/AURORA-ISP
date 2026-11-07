@@ -1,0 +1,12 @@
+# Unified AURORA backend: one FastAPI server for Bayer RAW + rendered RGB.
+numpy>=1.26
+scipy>=1.11
+opencv-python-headless>=4.9
+scikit-image>=0.22
+Pillow>=10.1
+rawpy>=0.19
+onnxruntime>=1.17
+fastapi>=0.115
+uvicorn[standard]>=0.30
+python-multipart>=0.0.9
+psutil>=5.9

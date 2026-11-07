@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AURORA Processing Studio</title>
+<style>
+:root{--bg:#f6f7f9;--fg:#14181f;--card:#fff;--mut:#5b6472;--ac:#4f46e5;--bd:#dfe3ea;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0e1116;--fg:#e8ebf0;--card:#171b22;--mut:#9aa3b2;--ac:#8b85ff;--bd:#2a303b;color-scheme:dark}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+main{max-width:1100px;margin:0 auto;padding:16px}h1{font-size:20px;margin:0}small,.mut{color:var(--mut)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-top:12px}
+.row{display:flex;gap:12px;flex-wrap:wrap}.col{flex:1 1 260px;min-width:0}
+canvas{width:100%;height:auto;border-radius:8px;background:#000}
+button,input[type=file]{font:inherit}button{background:var(--ac);color:#fff;border:0;border-radius:8px;padding:8px 14px;cursor:pointer}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:4px 6px;border-bottom:1px solid var(--bd);text-align:left}
+.tbl{overflow-x:auto}.warn{border-left:4px solid #d97706;padding-left:10px}
+</style></head><body><main>
+<h1>AURORA Processing Studio</h1>
+<small>Adaptive Unified RAW Optimization and Reconstruction Architecture &middot; runs entirely in your browser; images never leave your device.</small>
+<div class="card warn"><b>Input scope:</b> this web build accepts ordinary image files as <i>degraded sensor-image</i> input (not Bayer RAW/DNG). The learned path is unavailable until a trained model is exported. No benchmark values are shown unless measured here, on your input.</div>
+<div class="card"><div class="row"><div class="col"><label>Input image <input id="f" type="file" accept="image/*"></label></div>
+<div class="col"><label>Optional clean reference (same size) <input id="r" type="file" accept="image/*"></label></div>
+<div class="col"><button id="go" disabled>Process</button></div></div>
+<p class="mut" id="rt"></p></div>
+<div class="row" id="out"></div>
+<div class="card"><b>Measured on this run</b><div class="tbl"><table id="t"><tr><th>Mode</th><th>Latency (ms)</th><th>PSNR (dB)</th><th>Notes</th></tr></table></div>
+<small class="mut">Latency = full pipeline, single run, this browser/device (cold). SSIM, &Delta;E and LPIPS are computed by the Python harness, not in this build.</small></div>
+<div class="card"><b>Adaptive analysis</b><pre id="an" class="mut" style="white-space:pre-wrap;margin:6px 0 0">—</pre></div>
+<script>
+const $=id=>document.getElementById(id);let src=null,ref=null;
+$('rt').textContent='Runtime: JavaScript on CPU (main thread)'+(navigator.gpu?' · WebGPU detected (not yet used)':' · WebGPU not available');
+const load=f=>new Promise(res=>{const i=new Image();i.onload=()=>{const s=Math.min(1,640/i.width),c=document.createElement('canvas');c.width=Math.round(i.width*s);c.height=Math.round(i.height*s);const x=c.getContext('2d');x.drawImage(i,0,0,c.width,c.height);res(x.getImageData(0,0,c.width,c.height))};i.src=URL.createObjectURL(f)});
+$('f').onchange=async e=>{src=await load(e.target.files[0]);$('go').disabled=false};
+$('r').onchange=async e=>{ref=await load(e.target.files[0])};
+const dec=v=>{v/=255;return v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4)},enc=v=>{v=Math.min(1,Math.max(0,v));return 255*(v<=.0031308?12.92*v:1.055*Math.pow(v,1/2.4)-.055)};
+const LUT=new Float32Array(256).map((_,i)=>dec(i));
+function toLin(d){const n=d.width*d.height,o=new Float32Array(n*3);for(let i=0;i<n;i++)for(let c=0;c<3;c++)o[i*3+c]=LUT[d.data[i*4+c]];return o}
+function analyse(l,w,h){let sum=[0,0,0],clip=0,n=w*h,g=new Float32Array(n);for(let i=0;i<n;i++){const r=l[i*3],gg=l[i*3+1],b=l[i*3+2];sum[0]+=r;sum[1]+=gg;sum[2]+=b;g[i]=.2126*r+.7152*gg+.0722*b;if(Math.max(r,gg,b)>.98)clip++}
+ let s=0;for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++){const i=y*w+x;s+=Math.abs(4*g[i]-2*(g[i-1]+g[i+1]+g[i-w]+g[i+w])+g[i-w-1]+g[i-w+1]+g[i+w-1]+g[i+w+1])}
+ const sigma=s*Math.sqrt(.5*Math.PI)/(6*(w-2)*(h-2)),luma=(sum[0]*.2126+sum[1]*.7152+sum[2]*.0722)/n,m=sum.map(v=>v/n+1e-6),cast=Math.max(...m.map(v=>Math.abs(v/m[1]-1)));
+ return{sigma,luma,clip:clip/n,cast}}
+function decide(c){const skip=c.sigma<.004&&c.luma>.15;return{skip,dn:skip?0:Math.min(1,Math.max(.1,(c.sigma-.004)/.05)),sh:c.sigma>.03?.2:.5,tone:c.clip>.02?.2:(c.luma<.1?.8:.5)}}
+function wb(l,n){const m=[0,0,0];for(let i=0;i<n;i++)for(let c=0;c<3;c++)m[c]+=l[i*3+c];const g=m.map(v=>m[1]/(v+1e-6));for(let i=0;i<n;i++)for(let c=0;c<3;c++)l[i*3+c]=Math.min(1,l[i*3+c]*g[c])}
+function denoise(l,w,h,s){if(s<=.01)return l;const o=new Float32Array(l.length),sig=.02+.15*(1-s)*.5+.02,k=1/(2*sig*sig);
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++){const i=(y*w+x)*3;let a=[0,0,0],ws=0;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const yy=Math.min(h-1,Math.max(0,y+dy)),xx=Math.min(w-1,Math.max(0,x+dx)),j=(yy*w+xx)*3;const d=(l[j]-l[i])**2+(l[j+1]-l[i+1])**2+(l[j+2]-l[i+2])**2,wt=Math.exp(-d*k*(1+4*s));a[0]+=wt*l[j];a[1]+=wt*l[j+1];a[2]+=wt*l[j+2];ws+=wt}
+ o[i]=a[0]/ws;o[i+1]=a[1]/ws;o[i+2]=a[2]/ws}return o}
+function finish(l,w,h,tone,sharp){const k=.6*tone,o=new Uint8ClampedArray(w*h*4),e=new Float32Array(w*h*3);for(let i=0;i<w*h*3;i++){const v=Math.min(1,l[i]*(1+k)/(1+k*l[i]));e[i]=enc(v)}
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++){const i=y*w+x;for(let c=0;c<3;c++){let b=0;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){b+=e[(Math.min(h-1,Math.max(0,y+dy))*w+Math.min(w-1,Math.max(0,x+dx)))*3+c]}b/=9;o[i*4+c]=e[i*3+c]+sharp*(e[i*3+c]-b)}o[i*4+3]=255}
+ return new ImageData(o,w,h)}
+function psnr(a,b){if(!b||a.width!==b.width||a.height!==b.height)return null;let s=0,n=0;for(let i=0;i<a.data.length;i+=4)for(let c=0;c<3;c++){const d=(a.data[i+c]-b.data[i+c])/255;s+=d*d;n++}return s===0?Infinity:10*Math.log10(n/s)}
+function show(name,img){const d=document.createElement('div');d.className='col card';d.innerHTML='<b>'+name+'</b>';const c=document.createElement('canvas');c.width=img.width;c.height=img.height;c.getContext('2d').putImageData(img,0,0);d.appendChild(c);const a=document.createElement('a');a.textContent='Export PNG';a.href='#';a.onclick=ev=>{ev.preventDefault();const l=document.createElement('a');l.download=name+'.png';l.href=c.toDataURL();l.click()};d.appendChild(a);$('out').appendChild(d)}
+function row(n,ms,p,note){const t=$('t').insertRow();t.innerHTML=`<td>${n}</td><td>${ms==null?'—':ms.toFixed(0)}</td><td>${p==null?'—':p.toFixed(2)}</td><td>${note}</td>`}
+$('go').onclick=()=>{$('out').innerHTML='';while($('t').rows.length>1)$('t').deleteRow(1);const w=src.width,h=src.height,n=w*h;
+ let t0=performance.now();let l=toLin(src);wb(l,n);l=denoise(l,w,h,.3);const A=finish(l,w,h,.5,.4);const tA=performance.now()-t0;show('Traditional',A);row('Traditional',tA,psnr(A,ref),'fixed parameters');
+ t0=performance.now();l=toLin(src);wb(l,n);const c=analyse(l,w,h),p=decide(c);l=denoise(l,w,h,p.dn);const B=finish(l,w,h,p.tone,p.sh);const tB=performance.now()-t0;show('Hybrid',B);row('Hybrid',tB,psnr(B,ref),p.skip?'heavy stage skipped (clean input)':'adaptive controller');
+ row('Learned',null,null,'unavailable: no trained model exported yet');
+ $('an').textContent=`noise σ≈${c.sigma.toFixed(4)}  mean luma≈${c.luma.toFixed(3)}  clipped≈${(c.clip*100).toFixed(2)}%  colour cast≈${c.cast.toFixed(3)}\n→ denoise ${p.dn.toFixed(2)}, sharpen ${p.sh}, tone ${p.tone}`;
+ if(!ref)row('(PSNR)',null,null,'load a clean reference to compute PSNR')};
+</script></main></body></html>

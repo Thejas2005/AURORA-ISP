@@ -1,0 +1,7 @@
+# AURORA Processing Studio local backend
+-r requirements-core.txt
+fastapi
+uvicorn[standard]
+python-multipart
+rawpy
+torch

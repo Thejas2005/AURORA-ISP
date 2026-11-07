@@ -1,0 +1,175 @@
+{
+  "meta": {
+    "split": "validation, instance-level",
+    "seed": 42,
+    "validation_fraction": 0.1,
+    "n_captures": 24,
+    "crop": 1024,
+    "reference": "camera-rendered clean sRGB PNG",
+    "checkpoint": {
+      "epoch": 13,
+      "val_l1": 0.029491308921327192,
+      "val_psnr_db": 29.044607314042793,
+      "parameters": 267180,
+      "checkpoint_MB": 3.236799,
+      "device": "cuda",
+      "torch_version": "2.9.1+cu128",
+      "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU"
+    },
+    "warmup": 1,
+    "timed_runs": 3,
+    "conditioning_note": "Oracle uses GT RAW and target sRGB; not deployable. Estimated uses inference image analysis. Neutral uses noise_sigma=0 and mean_luma=0.5."
+  },
+  "summary": {
+    "traditional": {
+      "n_captures": 24,
+      "latency_ms_median": 571.9482499989681,
+      "PSNR": {
+        "mean": 21.789188086675438,
+        "std": 4.098843266331345
+      },
+      "SSIM": {
+        "mean": 0.8013859664400419,
+        "std": 0.11232257651649158
+      },
+      "DeltaE2000": {
+        "mean": 13.380813000203569,
+        "std": 3.6667688854010025
+      },
+      "LPIPS": {
+        "mean": 0.3657423723489046,
+        "std": 0.11127268949684004
+      }
+    },
+    "hybrid_classical": {
+      "n_captures": 24,
+      "latency_ms_median": 662.3332499875687,
+      "PSNR": {
+        "mean": 21.551931395073456,
+        "std": 3.7739812782618287
+      },
+      "SSIM": {
+        "mean": 0.7632707804441452,
+        "std": 0.11861417791546086
+      },
+      "DeltaE2000": {
+        "mean": 13.670620811516288,
+        "std": 3.3579553811888903
+      },
+      "LPIPS": {
+        "mean": 0.4198654815554619,
+        "std": 0.1137380718278226
+      },
+      "PSNR_minus_traditional": {
+        "mean_db": -0.2372566916019833,
+        "median_db": -0.025402639491971968,
+        "wins": 12,
+        "of": 24
+      }
+    },
+    "learned_oracle": {
+      "n_captures": 24,
+      "latency_ms_median": 259.58414998603985,
+      "PSNR": {
+        "mean": 23.61199851953761,
+        "std": 4.6450992623042975
+      },
+      "SSIM": {
+        "mean": 0.8200375710924467,
+        "std": 0.06379163052081804
+      },
+      "DeltaE2000": {
+        "mean": 10.845503351985826,
+        "std": 3.1726449535285313
+      },
+      "LPIPS": {
+        "mean": 0.34833647559086484,
+        "std": 0.04936373106767748
+      },
+      "PSNR_minus_traditional": {
+        "mean_db": 1.8228104328621744,
+        "median_db": 1.0139161601246887,
+        "wins": 18,
+        "of": 24
+      }
+    },
+    "learned_estimated": {
+      "n_captures": 24,
+      "latency_ms_median": 269.084700034,
+      "PSNR": {
+        "mean": 23.481599126244173,
+        "std": 4.660237802393211
+      },
+      "SSIM": {
+        "mean": 0.8203156068921089,
+        "std": 0.06344335157327696
+      },
+      "DeltaE2000": {
+        "mean": 10.995421493143226,
+        "std": 3.2169285806495616
+      },
+      "LPIPS": {
+        "mean": 0.3499872411290805,
+        "std": 0.051619199265022744
+      },
+      "PSNR_minus_traditional": {
+        "mean_db": 1.6924110395687304,
+        "median_db": 0.8534349257720724,
+        "wins": 18,
+        "of": 24
+      }
+    },
+    "learned_neutral": {
+      "n_captures": 24,
+      "latency_ms_median": 274.0741499583237,
+      "PSNR": {
+        "mean": 23.648965417041577,
+        "std": 4.5155816821319545
+      },
+      "SSIM": {
+        "mean": 0.8142068659265836,
+        "std": 0.06537078370754838
+      },
+      "DeltaE2000": {
+        "mean": 10.736413091082555,
+        "std": 3.100109903605118
+      },
+      "LPIPS": {
+        "mean": 0.34989382574955624,
+        "std": 0.04616688176043212
+      },
+      "PSNR_minus_traditional": {
+        "mean_db": 1.8597773303661367,
+        "median_db": 1.1533827570635822,
+        "wins": 20,
+        "of": 24
+      }
+    },
+    "hybrid_learned_estimated": {
+      "n_captures": 24,
+      "latency_ms_median": 787.6786500564776,
+      "PSNR": {
+        "mean": 22.667217207230465,
+        "std": 4.2471237718304415
+      },
+      "SSIM": {
+        "mean": 0.8210418373346329,
+        "std": 0.0775662858063783
+      },
+      "DeltaE2000": {
+        "mean": 12.109898092299597,
+        "std": 3.0987408846107773
+      },
+      "LPIPS": {
+        "mean": 0.3438159916549921,
+        "std": 0.10095955324103935
+      },
+      "PSNR_minus_traditional": {
+        "mean_db": 0.8780291205550266,
+        "median_db": 0.6233814017935106,
+        "wins": 22,
+        "of": 24
+      }
+    }
+  }
+}

@@ -1,0 +1,3 @@
+# Optional RGB restoration experiment dependencies
+PyWavelets
+bm3d

@@ -1,0 +1,157 @@
+{
+  "meta": {
+    "split": "validation, instance-level",
+    "seed": 42,
+    "validation_fraction": 0.1,
+    "n_captures": 4,
+    "crop": 1024,
+    "reference": "camera-rendered clean sRGB PNG",
+    "checkpoint": {
+      "epoch": 13,
+      "val_l1": 0.029491308921327192,
+      "val_psnr_db": 29.044607314042793,
+      "parameters": 267180,
+      "checkpoint_MB": 3.236799,
+      "device": "cuda",
+      "torch_version": "2.9.1+cu128",
+      "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU"
+    },
+    "warmup": 1,
+    "timed_runs": 3,
+    "conditioning_note": "Oracle uses GT RAW and target sRGB; not deployable. Estimated uses inference image analysis. Neutral uses noise_sigma=0 and mean_luma=0.5."
+  },
+  "summary": {
+    "traditional": {
+      "n_captures": 4,
+      "latency_ms_median": 633.596449973993,
+      "PSNR": {
+        "mean": 22.702190665882178,
+        "std": 2.5720653890433023
+      },
+      "SSIM": {
+        "mean": 0.9074799418449402,
+        "std": 0.04002507457592501
+      },
+      "DeltaE2000": {
+        "mean": 11.79665737401768,
+        "std": 3.1916045721843282
+      },
+      "LPIPS": null
+    },
+    "hybrid_classical": {
+      "n_captures": 4,
+      "latency_ms_median": 710.1824000128545,
+      "PSNR": {
+        "mean": 22.61059426071518,
+        "std": 2.6701340993308906
+      },
+      "SSIM": {
+        "mean": 0.8361114114522934,
+        "std": 0.029806260170882826
+      },
+      "DeltaE2000": {
+        "mean": 12.850558215544595,
+        "std": 2.3198752474441107
+      },
+      "LPIPS": null,
+      "PSNR_minus_traditional": {
+        "mean_db": -0.09159640516699241,
+        "median_db": -0.09380244961540818,
+        "wins": 2,
+        "of": 4
+      }
+    },
+    "learned_oracle": {
+      "n_captures": 4,
+      "latency_ms_median": 284.4204499851912,
+      "PSNR": {
+        "mean": 26.27903670419927,
+        "std": 5.012353864908559
+      },
+      "SSIM": {
+        "mean": 0.8909519463777542,
+        "std": 0.03186962335963191
+      },
+      "DeltaE2000": {
+        "mean": 9.533102086181906,
+        "std": 3.6002625857345545
+      },
+      "LPIPS": null,
+      "PSNR_minus_traditional": {
+        "mean_db": 3.5768460383170986,
+        "median_db": 3.4720221114898298,
+        "wins": 4,
+        "of": 4
+      }
+    },
+    "learned_estimated": {
+      "n_captures": 4,
+      "latency_ms_median": 272.8431000141427,
+      "PSNR": {
+        "mean": 26.168939445213574,
+        "std": 4.996964957014866
+      },
+      "SSIM": {
+        "mean": 0.8888854384422302,
+        "std": 0.033930533561974424
+      },
+      "DeltaE2000": {
+        "mean": 9.634918388053425,
+        "std": 3.5485845524754045
+      },
+      "LPIPS": null,
+      "PSNR_minus_traditional": {
+        "mean_db": 3.466748779331401,
+        "median_db": 3.3655934519895254,
+        "wins": 4,
+        "of": 4
+      }
+    },
+    "learned_neutral": {
+      "n_captures": 4,
+      "latency_ms_median": 262.97744998009875,
+      "PSNR": {
+        "mean": 26.309944976256535,
+        "std": 4.95441757144929
+      },
+      "SSIM": {
+        "mean": 0.8897918611764908,
+        "std": 0.03178734190151916
+      },
+      "DeltaE2000": {
+        "mean": 9.54114539779683,
+        "std": 3.5670811668147366
+      },
+      "LPIPS": null,
+      "PSNR_minus_traditional": {
+        "mean_db": 3.607754310374361,
+        "median_db": 3.503763662726751,
+        "wins": 4,
+        "of": 4
+      }
+    },
+    "hybrid_learned_estimated": {
+      "n_captures": 4,
+      "latency_ms_median": 799.349999986589,
+      "PSNR": {
+        "mean": 24.395734790623315,
+        "std": 3.66282318079244
+      },
+      "SSIM": {
+        "mean": 0.8842799663543701,
+        "std": 0.022555346352434256
+      },
+      "DeltaE2000": {
+        "mean": 11.119630083219883,
+        "std": 2.5369785493106907
+      },
+      "LPIPS": null,
+      "PSNR_minus_traditional": {
+        "mean_db": 1.6935441247411402,
+        "median_db": 1.6806578444585547,
+        "wins": 4,
+        "of": 4
+      }
+    }
+  }
+}

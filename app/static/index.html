@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AURORA | Image Signal Processor</title>
+<style>
+:root{--bg:#0b1020;--panel:#121a2d;--panel2:#18233b;--line:#2a3854;--text:#eef3ff;--muted:#a8b5cc;--accent:#79d7c2;--blue:#8ab4ff;--warn:#ffcc80}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0,#1b2c46 0,transparent 35%),var(--bg);color:var(--text);font:15px/1.5 Inter,ui-sans-serif,system-ui,Segoe UI,Arial}
+main{max-width:1320px;margin:auto;padding:30px 24px 64px}.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:26px}.brand{display:flex;align-items:center;gap:13px}.logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(145deg,#7ce0c7,#6b9dff);display:grid;place-items:center;color:#071322;font-weight:900;font-size:21px}.eyebrow{color:var(--accent);text-transform:uppercase;letter-spacing:.15em;font-size:11px;font-weight:700}h1{font-size:28px;letter-spacing:-.035em;margin:1px 0 0}h2{font-size:17px;margin:0 0 14px}.sub{color:var(--muted);font-size:13px}.pill{border:1px solid var(--line);padding:7px 11px;border-radius:999px;color:var(--muted);font-size:12px}.layout{display:grid;grid-template-columns:320px 1fr;gap:20px}.panel{background:#111a2b;border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:0 8px 28px #0002}.field{margin:15px 0}.field label{display:block;font-size:13px;color:#d8e2f4;margin-bottom:7px}.file{width:100%;padding:13px;border:1px dashed #526481;border-radius:11px;background:#0d1525;color:var(--muted)}select{width:100%;background:#0d1525;border:1px solid var(--line);color:var(--text);padding:11px;border-radius:10px}.modes{display:grid;gap:9px}.mode{display:flex;align-items:center;gap:9px;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:#0d1525}.mode input{accent-color:#79d7c2}.btn{border:0;border-radius:11px;padding:12px 16px;font-weight:750;background:linear-gradient(100deg,#79d7c2,#8ab4ff);color:#071322;cursor:pointer;width:100%;font-size:14px}.btn:disabled{opacity:.45;cursor:wait}.hint{font-size:12px;color:var(--muted);margin-top:7px}.status{margin-top:13px;padding:10px;border-radius:10px;background:#0d1525;color:var(--muted);font-size:12px;min-height:38px}.status.error{color:#ffaaa8;border:1px solid #8b4242}.status.ok{color:#9ee6ce;border:1px solid #356e60}.right{display:grid;gap:18px}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.metric{background:#0d1525;border:1px solid var(--line);border-radius:12px;padding:12px}.metric b{display:block;font-size:19px;margin-top:3px}.metric span{font-size:11px;color:var(--muted)}.results{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.result{background:#0d1525;border:1px solid var(--line);border-radius:13px;overflow:hidden}.result img{width:100%;aspect-ratio:4/3;object-fit:contain;background:#05080e;display:block}.result .meta{padding:11px}.result h3{font-size:14px;margin:0 0 5px}.stats{font-size:11px;color:var(--muted);white-space:pre-line}.download{color:var(--accent);font-size:12px;text-decoration:none;display:inline-block;margin-top:8px}.condition-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.cond{background:#0d1525;border:1px solid var(--line);padding:10px;border-radius:10px}.cond span{display:block;color:var(--muted);font-size:11px}.cond b{font-size:15px}.empty{border:1px dashed var(--line);border-radius:13px;padding:38px;text-align:center;color:var(--muted);grid-column:1/-1}.foot{margin-top:20px;color:var(--muted);font-size:11px}.tag{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.12em}.device-table tr:hover{background:#ffffff06}.mode{transition:border-color .15s,background .15s}.mode:has(input:checked){border-color:#527b82;background:#10212b}.btn{transition:filter .15s,transform .15s}.btn:hover{filter:brightness(1.06)}.btn:active{transform:translateY(1px)}@media(max-width:900px){.layout{grid-template-columns:1fr}.results{grid-template-columns:1fr 1fr}}@media(max-width:560px){main{padding:18px 12px}.top{align-items:flex-start}.pill{display:none}.results{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.condition-grid{grid-template-columns:repeat(2,1fr)}}
+
+.arch-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:-4px 0 14px}
+.arch-actions{display:flex;gap:4px;flex-wrap:wrap;padding:4px;border:1px solid var(--line);border-radius:12px;background:#0d1525}
+.arch-action{border:0;background:transparent;color:var(--muted);padding:7px 14px;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;transition:background .15s,color .15s}
+.arch-action:hover{color:var(--text);background:#16233a}
+.arch-action.active{background:#173b3b;color:var(--accent);box-shadow:inset 0 0 0 1px #3f8c80}
+.arch-canvas{position:relative;background:radial-gradient(circle at 1px 1px,#1c2a42 1px,transparent 0) 0 0/22px 22px,linear-gradient(145deg,#0c1424,#101b2d);border:1px solid var(--line);border-radius:14px;padding:14px;overflow-x:auto}
+#aurora-architecture{display:block;width:100%;min-width:980px;height:auto}
+.arch-legend{display:flex;gap:16px;flex-wrap:wrap;margin:12px 2px 0;font-size:11.5px;color:var(--muted)}
+.arch-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.arch-legend .ln{display:inline-block;width:22px;height:0;border-top:2px solid #6c7f9c;margin-right:6px;vertical-align:3px}
+.arch-legend .ln.d{border-top-style:dashed}
+.arch-node{cursor:pointer;outline:none;transition:opacity .2s}
+.arch-node rect.box,.arch-node path.box{fill:#13213a;stroke:var(--k,#60748f);stroke-width:1.6;transition:fill .18s,stroke-width .18s,filter .18s}
+.arch-node rect.bar{fill:var(--k,#60748f)}
+.arch-node text{fill:#b4c3da;text-anchor:middle;font-size:13px;pointer-events:none}
+.arch-node .node-title{fill:#f0f5ff;font-weight:700;font-size:15px}
+.arch-node:hover rect.box,.arch-node:hover path.box,.arch-node:focus-visible rect.box,.arch-node:focus-visible path.box{fill:#182a47;stroke-width:2.6}
+.arch-node.selected rect.box,.arch-node.selected path.box{fill:#173b3b;stroke:#79d7c2;stroke-width:3;filter:drop-shadow(0 0 10px rgba(121,215,194,.35))}
+.arch-node.related rect.box,.arch-node.related path.box{stroke:#8ab4ff;stroke-width:2.6}
+.arch-node.dimmed{opacity:.25}
+.k-in{--k:#7f93b3}.k-route{--k:#e0b36a}.k-raw{--k:#5fd1b8}.k-rgb{--k:#7ea8ff}.k-fuse{--k:#b79cff}.k-eval{--k:#8fdc8a}.k-ctl{--k:#8a97ad}
+.arch-connectors path{fill:none;stroke:#566a88;stroke-width:2;stroke-linejoin:round;marker-end:url(#arch-arrow);transition:stroke .2s,opacity .2s}
+.arch-connectors path.ctl{stroke-dasharray:6 5;stroke:#6a7a94}
+.arch-connectors path.hot{stroke:#79d7c2;stroke-width:3;marker-end:url(#arch-arrow-hot);opacity:1}
+.arch-connectors path.dimmed{opacity:.12}
+.arch-edge-label{fill:#9fb0c9;font-size:12px;font-weight:600;letter-spacing:.02em}
+.arch-footnote text{fill:#7f92b0;font-size:12px}
+.arch-detail{margin-top:12px;border:1px solid var(--line);border-radius:12px;background:#0d1525;padding:15px 18px;border-left:3px solid var(--accent)}
+.arch-detail-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.arch-detail-head strong{font-size:15px;color:#f0f5ff}
+.arch-detail p{font-size:13.5px;color:#d0dced;margin:8px 0 6px;max-width:90ch}
+.arch-detail-meta{font-size:12px;color:var(--muted)}
+@media(max-width:650px){.arch-toolbar{align-items:flex-start}.arch-actions{width:100%}.arch-action{flex:1;padding:7px 6px}}
+
+</style>
+</head>
+<body><main>
+<header class="top"><div class="brand"><div><div class="eyebrow">COMPUTATIONAL PHOTOGRAPHY</div><h1>AURORA ISP</h1><div class="sub">Local image pipeline · RAW + rendered RGB</div></div></div></header>
+<div class="layout">
+<section class="panel">
+<h2>Input & processing</h2>
+<div class="field"><label for="raw">Input image (DNG / NPY / NPZ / PNG / JPG / JPEG)</label><input class="file" id="raw" type="file" accept=".dng,.cr2,.cr3,.nef,.nrw,.arw,.srf,.sr2,.raf,.orf,.rw2,.pef,.srw,.3fr,.ari,.bay,.cap,.dcs,.dcr,.drf,.eip,.erf,.fff,.gpr,.iiq,.k25,.kdc,.mdc,.mef,.mos,.mrw,.obm,.ptx,.pxn,.r3d,.raw,.rwl,.sti,.x3f,.npy,.npz,.png,.jpg,.jpeg,.tif,.tiff,.bmp,.webp"><div class="hint">Standard Bayer RAW uses the Bayer ISP. Other camera RAW layouts are decoded to RGB when LibRaw supports them, then use RGB enhancement. PNG/JPG/TIFF use RGB enhancement.</div></div>
+<div class="field"><label for="pattern">Bayer pattern</label><select id="pattern"><option value="AUTO">Auto (DNG metadata / NPZ)</option><option>RGGB</option><option>BGGR</option><option>GRBG</option><option>GBRG</option></select></div>
+<div class="field"><label for="reference">Optional reference image (for metrics)</label><input class="file" id="reference" type="file" accept="image/*,.dng,.cr2,.cr3,.nef,.nrw,.arw,.srf,.sr2,.raf,.orf,.rw2,.pef,.srw,.3fr,.ari,.bay,.cap,.dcs,.dcr,.drf,.eip,.erf,.fff,.gpr,.iiq,.k25,.kdc,.mdc,.mef,.mos,.mrw,.obm,.ptx,.pxn,.r3d,.raw,.rwl,.sti,.x3f"><div class="hint">Rendered images and LibRaw-supported camera RAW references are decoded to RGB for metric calculation only. The reference is never processed or enhanced. Dimensions must match the rendered output.</div></div>
+<div class="field"><label>Processing modes</label><div class="modes" id="mode-options">
+<label class="mode"><input type="checkbox" id="traditional" checked> Traditional pipeline</label>
+<label class="mode"><input type="checkbox" id="learned" checked> Neural restoration</label>
+<label class="mode"><input type="checkbox" id="hybrid" checked> Hybrid pipeline</label>
+</div></div>
+<button class="btn" id="run">Process image</button><div class="status" id="status">Connect to the local AURORA backend to begin.</div>
+<div class="foot">Local processing · Images remain on this computer.</div>
+</section>
+<div class="right">
+<section class="panel architecture-panel">
+<h2>System architecture</h2>
+<div class="arch-toolbar">
+  <span class="hint">Select any component to inspect its role and connections.</span>
+  <div class="arch-actions">
+    <button type="button" class="arch-action active" data-flow="all">All</button>
+    <button type="button" class="arch-action" data-flow="raw">RAW path</button>
+    <button type="button" class="arch-action" data-flow="rgb">RGB path</button>
+    <button type="button" class="arch-action" data-flow="output">Output path</button>
+    <button type="button" class="arch-action" id="arch-reset">Reset</button>
+  </div>
+</div>
+<div class="arch-canvas" aria-label="Interactive AURORA system architecture">
+<svg id="aurora-architecture" viewBox="0 0 1420 680" role="group" aria-label="Interactive AURORA architecture diagram">
+ <defs>
+  <marker id="arch-arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0.5 L8.5 4.5 L0 8.5 z" fill="#7890ad"/></marker>
+  <marker id="arch-arrow-hot" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0.5 L8.5 4.5 L0 8.5 z" fill="#79d7c2"/></marker>
+ </defs>
+ <g class="arch-connectors">
+  <path data-from="acquisition" data-to="file" data-path="raw rgb" class="" d="M176 275 H200"/>
+  <path data-from="file" data-to="decision" data-path="raw rgb" class="" d="M360 275 H390"/>
+  <path data-from="file" data-to="rgb" data-path="rgb" class="" d="M280 230 V22 H890 V150"/>
+  <path data-from="decision" data-to="nonbayer" data-path="rgb" class="" d="M470 225 V90 H600"/>
+  <path data-from="decision" data-to="bayer" data-path="raw" class="" d="M470 325 V390 H600"/>
+  <path data-from="decision" data-to="learned" data-path="raw" class="" d="M470 390 V515 H810"/>
+  <path data-from="nonbayer" data-to="rgb" data-path="rgb" class="" d="M760 90 H785 V200 H810"/>
+  <path data-from="bayer" data-to="hybrid" data-path="raw" class="" d="M760 365 H1000 V300 H1030"/>
+  <path data-from="learned" data-to="hybrid" data-path="raw" class="" d="M970 515 H1000 V300 H1030"/>
+  <path data-from="rgb" data-to="hybrid" data-path="rgb" class="" d="M970 200 H1000 V250 H1030"/>
+  <path data-from="hybrid" data-to="evaluation" data-path="raw rgb output" class="" d="M1190 275 H1215 V145 H1240"/>
+  <path data-from="evaluation" data-to="studio" data-path="output" class="" d="M1315 190 V270"/>
+  <path data-from="studio" data-to="fastapi" data-path="output" class="" d="M1295 360 V440"/>
+  <path data-from="fastapi" data-to="studio" data-path="output" class="" d="M1335 440 V360"/>
+  <path data-from="adaptive" data-to="bayer" data-path="raw" class="ctl" d="M176 450 H560 V410 H600"/>
+  <path data-from="adaptive" data-to="hybrid" data-path="raw rgb" class="ctl" d="M176 485 H330 V650 H1110 V325"/>
+  <path data-from="optimization" data-to="learned" data-path="raw" class="ctl" d="M176 570 H890 V560"/>
+ </g>
+ <g class="arch-labels"><text class="arch-edge-label" x="300" y="14">Rendered RGB (bypass)</text><text class="arch-edge-label" x="482" y="128">No</text><text class="arch-edge-label" x="480" y="352">Yes</text><text class="arch-edge-label" x="1118" y="640">Feedback</text><text class="arch-edge-label" x="1304" y="404" text-anchor="middle">API</text></g>
+ <g class="arch-nodes">
+  <g class="arch-node k-in" data-node="acquisition" data-flows="raw rgb" tabindex="0" role="button" aria-label="Image acquisition and upload"><rect class="box" x="16" y="230" width="160" height="90" rx="12"/><rect class="bar" x="30" y="230" width="132" height="3" rx="1.5"/><text x="96" y="260" class="node-title">Image acquisition</text><text x="96" y="282">RAW · Bayer · RGB</text><text x="96" y="300">Upload / capture</text></g>
+  <g class="arch-node k-in" data-node="file" data-flows="raw rgb" tabindex="0" role="button" aria-label="File processing pipeline"><rect class="box" x="200" y="230" width="160" height="90" rx="12"/><rect class="bar" x="214" y="230" width="132" height="3" rx="1.5"/><text x="280" y="260" class="node-title">File processing</text><text x="280" y="282">Type detection</text><text x="280" y="300">Validation / routing</text></g>
+  <g class="arch-node k-rgb" data-node="nonbayer" data-flows="rgb" tabindex="0" role="button" aria-label="Non-Bayer RAW fallback"><rect class="box" x="600" y="40" width="160" height="100" rx="12"/><rect class="bar" x="614" y="40" width="132" height="3" rx="1.5"/><text x="680" y="70" class="node-title">Non-Bayer RAW</text><text x="680" y="92">LibRaw decoding</text><text x="680" y="110">X-Trans / other</text><text x="680" y="128">to rendered RGB</text></g>
+  <g class="arch-node k-rgb" data-node="rgb" data-flows="rgb" tabindex="0" role="button" aria-label="RGB enhancement pipeline"><rect class="box" x="810" y="150" width="160" height="100" rx="12"/><rect class="bar" x="824" y="150" width="132" height="3" rx="1.5"/><text x="890" y="180" class="node-title">RGB enhancement</text><text x="890" y="202">Normalize · denoise</text><text x="890" y="220">Colour / tone</text><text x="890" y="238">Enhancement modes</text></g>
+  <g class="arch-node k-raw" data-node="bayer" data-flows="raw" tabindex="0" role="button" aria-label="Bayer RAW processing pipeline"><rect class="box" x="600" y="340" width="160" height="100" rx="12"/><rect class="bar" x="614" y="340" width="132" height="3" rx="1.5"/><text x="680" y="370" class="node-title">Bayer RAW ISP</text><text x="680" y="392">Decode · normalize</text><text x="680" y="410">Demosaic · denoise</text><text x="680" y="428">Traditional stages</text></g>
+  <g class="arch-node k-raw" data-node="learned" data-flows="raw" tabindex="0" role="button" aria-label="Learned ISP subsystem"><rect class="box" x="810" y="470" width="160" height="90" rx="12"/><rect class="bar" x="824" y="470" width="132" height="3" rx="1.5"/><text x="890" y="500" class="node-title">Learned ISP</text><text x="890" y="522">ONNX U-Net</text><text x="890" y="540">RAW restoration</text></g>
+  <g class="arch-node k-fuse" data-node="hybrid" data-flows="raw rgb output" tabindex="0" role="button" aria-label="Hybrid ISP fusion"><rect class="box" x="1030" y="225" width="160" height="100" rx="12"/><rect class="bar" x="1044" y="225" width="132" height="3" rx="1.5"/><text x="1110" y="255" class="node-title">Hybrid ISP fusion</text><text x="1110" y="277">Classical + learned</text><text x="1110" y="295">Adaptive weighting</text></g>
+  <g class="arch-node k-eval" data-node="evaluation" data-flows="raw rgb output" tabindex="0" role="button" aria-label="Evaluation and benchmarking"><rect class="box" x="1240" y="100" width="150" height="90" rx="12"/><rect class="bar" x="1254" y="100" width="122" height="3" rx="1.5"/><text x="1315" y="130" class="node-title">Evaluation</text><text x="1315" y="152">PSNR · SSIM</text><text x="1315" y="170">LPIPS · latency</text></g>
+  <g class="arch-node k-eval" data-node="studio" data-flows="raw rgb output" tabindex="0" role="button" aria-label="AURORA Processing Studio"><rect class="box" x="1240" y="270" width="150" height="90" rx="12"/><rect class="bar" x="1254" y="270" width="122" height="3" rx="1.5"/><text x="1315" y="300" class="node-title">Processing Studio</text><text x="1315" y="322">Browser interface</text><text x="1315" y="340">Previews / downloads</text></g>
+  <g class="arch-node k-eval" data-node="fastapi" data-flows="raw rgb output" tabindex="0" role="button" aria-label="FastAPI backend"><rect class="box" x="1240" y="440" width="150" height="90" rx="12"/><rect class="bar" x="1254" y="440" width="122" height="3" rx="1.5"/><text x="1315" y="470" class="node-title">FastAPI backend</text><text x="1315" y="492">Unified API</text><text x="1315" y="510">Route · process</text></g>
+  <g class="arch-node k-ctl" data-node="adaptive" data-flows="raw rgb" tabindex="0" role="button" aria-label="Adaptive controller"><rect class="box" x="16" y="420" width="160" height="90" rx="12"/><rect class="bar" x="30" y="420" width="132" height="3" rx="1.5"/><text x="96" y="450" class="node-title">Adaptive controller</text><text x="96" y="472">Image conditions</text><text x="96" y="490">Parameter selection</text></g>
+  <g class="arch-node k-ctl" data-node="optimization" data-flows="raw" tabindex="0" role="button" aria-label="Computational optimization"><rect class="box" x="16" y="530" width="160" height="80" rx="12"/><rect class="bar" x="30" y="530" width="132" height="3" rx="1.5"/><text x="96" y="560" class="node-title">Optimization</text><text x="96" y="582">ONNX · precision</text><text x="96" y="600">Performance</text></g>
+  <g class="arch-node k-route decision" data-node="decision" data-flows="raw rgb" tabindex="0" role="button" aria-label="Standard Bayer RAW decision"><path class="box" d="M470 225 L550 275 L470 325 L390 275 Z"/><text x="470" y="271" class="node-title">Bayer RAW?</text><text x="470" y="291">Pattern / layout</text></g>
+ </g>
+ <g class="arch-footnote"><text x="16" y="404">Control and optimization inputs</text></g>
+</svg>
+<div class="arch-legend"><span><i style="background:#7f93b3"></i>Input</span><span><i style="background:#e0b36a"></i>Routing</span><span><i style="background:#5fd1b8"></i>RAW path</span><span><i style="background:#7ea8ff"></i>RGB path</span><span><i style="background:#b79cff"></i>Fusion</span><span><i style="background:#8fdc8a"></i>Evaluation</span><span><i class="ln"></i>Data flow</span><span><i class="ln d"></i>Control</span></div>
+</div>
+<div class="arch-detail" id="arch-detail" aria-live="polite">
+ <div class="arch-detail-head"><span class="tag">Component details</span><strong id="arch-detail-title">AURORA processing flow</strong></div>
+ <p id="arch-detail-text">Choose a block in the architecture to see what it does, what enters it, and where its output goes.</p>
+ <div class="arch-detail-meta" id="arch-detail-meta">Select a component · Use the path filters to trace a route.</div>
+</div>
+</section>
+<section class="panel"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><h2>Image-condition analysis</h2><span class="tag">Measured per input</span></div><div class="condition-grid" id="conditions"><div class="empty">Upload a Bayer RAW image to inspect sensor conditions.</div></div></section>
+<section class="panel"><h2>Processing comparison</h2><div class="results" id="results"><div class="empty">Your Processed image variants will appear here.</div></div></section>
+<section class="panel"><h2>Execution & device performance</h2>
+<div class="metrics" id="perf-metrics">
+<div class="metric"><span>Processing time</span><b id="host-latency">—</b></div>
+<div class="metric"><span>Throughput</span><b id="host-throughput">—</b></div>
+<div class="metric"><span>CPU utilization</span><b id="host-cpu">—</b></div>
+<div class="metric"><span>RAM in use</span><b id="host-ram">—</b></div>
+<div class="metric"><span>GPU acceleration</span><b id="gpu-status">CPU only</b></div>
+<div class="metric"><span>VRAM usage</span><b id="host-vram">N/A</b></div>
+</div>
+<div class="hint" id="perf-note">Resource measurements are from the local backend process. Model precision: <span id="model-precision">—</span>. GPU and VRAM are unavailable because this build uses CPU inference.</div>
+<div style="height:14px"></div>
+</section>
+<section class="panel"><h2>Evaluation metrics</h2><div class="metrics" id="metrics"><div class="metric"><span>PSNR</span><b>—</b></div><div class="metric"><span>SSIM</span><b>—</b></div><div class="metric"><span>Delta E 2000</span><b>—</b></div><div class="metric"><span>LPIPS</span><b>—</b></div></div><div class="hint">Metrics are only shown when you supply a matched clean reference. They are calculated against that reference, not estimated.</div></section>
+</div></div>
+<div class="foot">AURORA ISP · RAW sensor processing and rendered-image enhancement. Performance figures are measured on the current host unless explicitly labelled otherwise.</div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+async function health(){try{await fetch('/api/health')}catch(e){/* local backend status is not displayed in the header */}}
+health();
+
+const architectureInfo={
+ acquisition:{title:'Image acquisition and upload',text:'Accepts camera RAW, Bayer RAW, rendered RGB images and supported array formats. The uploaded file is passed to the file-processing stage.',meta:'Input: DNG / other camera RAW / NPY / NPZ / PNG / JPEG / TIFF · Output: uploaded file'},
+ file:{title:'File processing pipeline',text:'Inspects the file extension and content, validates the upload, identifies the image representation and routes it to the appropriate processing path.',meta:'Input: uploaded file · Output: classified Bayer RAW, non-Bayer RAW or rendered RGB'},
+ decision:{title:'Standard Bayer RAW decision',text:'Determines whether the sensor data is a standard Bayer mosaic. Bayer data follows the RAW ISP; other supported camera RAW layouts are rendered through LibRaw and then enhanced as RGB.',meta:'Yes → Bayer RAW ISP · No → LibRaw fallback → RGB enhancement'},
+ nonbayer:{title:'Non-Bayer RAW fallback',text:'Uses LibRaw to decode supported non-Bayer camera formats, including X-Trans and other layouts, into rendered RGB. This fallback does not run the Bayer-trained RAW model.',meta:'Input: supported non-Bayer RAW · Output: rendered RGB'},
+ rgb:{title:'RGB enhancement pipeline',text:'Processes rendered RGB inputs and RGB images produced by the non-Bayer RAW fallback. Available modes include original output, denoising and full RGB enhancement.',meta:'Input: RGB / LibRaw-rendered RGB · Output: enhanced RGB variants'},
+ bayer:{title:'Bayer RAW processing pipeline',text:'Runs the traditional sensor pipeline: RAW decoding, normalization, demosaicing, denoising and subsequent ISP operations. Its output can be compared or fused with the learned result.',meta:'Input: standard Bayer RAW · Output: traditional ISP RGB'},
+ learned:{title:'Learned ISP subsystem',text:'Runs the compact learned RAW restoration model through ONNX Runtime. Its result is a learned reconstruction branch for the Bayer RAW path.',meta:'Input: prepared Bayer RAW tensor · Output: learned RGB restoration'},
+ adaptive:{title:'Adaptive controller',text:'Analyzes image conditions and supplies control information to processing stages. It is intended to guide parameter selection based on the input rather than use one fixed setting for every image.',meta:'Control signals: image-condition estimates and processing parameters'},
+ optimization:{title:'Computational optimization',text:'Holds the model deployment and efficiency workstream, including ONNX export, quantization or precision choices, and performance measurement. It affects deployment configuration rather than being a separate image output.',meta:'Focus: model format · precision · runtime / resource metrics'},
+ hybrid:{title:'Hybrid ISP fusion',text:'Combines classical and learned outputs using adaptive information to produce the hybrid result. It is the convergence point for the RAW processing branches and RGB enhancement branch in this architecture.',meta:'Inputs: traditional RAW output · learned RAW output · RGB enhancement output'},
+ studio:{title:'AURORA Processing Studio',text:'Browser-based interface for previews, comparisons and downloads of the processed variants and their metrics.',meta:'Input: results from the backend · Output: previews / downloads / user requests'},
+ fastapi:{title:'FastAPI backend',text:'Unified API that routes uploads, runs the processing pipelines and returns images and metrics. The studio and backend exchange requests and results in a loop.',meta:'Input: studio requests · Output: processed images, metrics'},
+ evaluation:{title:'Evaluation and benchmarking',text:'Measures output quality and runtime. With a matching reference, image metrics such as PSNR, SSIM, Delta E 2000 and LPIPS can be calculated; performance measurements include latency and resource use.',meta:'Metrics: PSNR · SSIM · Delta E 2000 · LPIPS · latency / throughput'}
+};
+const archNodes=[...document.querySelectorAll('.arch-node')];
+const archEdges=[...document.querySelectorAll('.arch-connectors path')];
+function paintArch(visNodes,visEdges,hotEdges){
+ archNodes.forEach(n=>n.classList.toggle('dimmed',!visNodes.has(n.dataset.node)));
+ archEdges.forEach(e=>{e.classList.toggle('dimmed',!visEdges.has(e));e.classList.toggle('hot',hotEdges.has(e))});
+}
+function selectArchNode(id){
+ const info=architectureInfo[id];if(!info)return;
+ document.querySelectorAll('.arch-action[data-flow]').forEach(b=>b.classList.remove('active'));
+ const touching=archEdges.filter(e=>e.dataset.from===id||e.dataset.to===id);
+ const vis=new Set([id]);touching.forEach(e=>{vis.add(e.dataset.from);vis.add(e.dataset.to)});
+ archNodes.forEach(n=>{n.classList.toggle('selected',n.dataset.node===id);n.classList.toggle('related',vis.has(n.dataset.node)&&n.dataset.node!==id)});
+ paintArch(vis,new Set(touching),new Set(touching));
+ $('arch-detail-title').textContent=info.title;$('arch-detail-text').textContent=info.text;$('arch-detail-meta').textContent=info.meta;
+}
+function filterArch(flow){
+ document.querySelectorAll('.arch-action[data-flow]').forEach(b=>b.classList.toggle('active',b.dataset.flow===flow));
+ archNodes.forEach(n=>n.classList.remove('selected','related'));
+ const inFlow=el=>flow==='all'||(el.dataset.flows||el.dataset.path||'').split(' ').includes(flow);
+ const vn=new Set(archNodes.filter(inFlow).map(n=>n.dataset.node));
+ const ve=new Set(archEdges.filter(e=>flow==='all'||((e.dataset.path||'').split(' ').includes(flow)&&vn.has(e.dataset.from)&&vn.has(e.dataset.to))));
+ paintArch(vn,ve,flow==='all'?new Set():ve);
+ $('arch-detail-title').textContent=flow==='all'?'AURORA processing flow':flow==='raw'?'Bayer RAW processing route':flow==='rgb'?'Rendered RGB processing route':'Output and evaluation route';
+ $('arch-detail-text').textContent=flow==='all'?'Select a block to inspect its role, inputs and outputs.':flow==='raw'?'Trace the standard Bayer RAW branch from file classification through traditional and learned ISP processing into hybrid fusion.':flow==='rgb'?'Trace non-Bayer RAW fallback and rendered RGB inputs through RGB enhancement and into the downstream result path.':'Follow the converged processing output into evaluation and benchmarking.';
+ $('arch-detail-meta').textContent='Choose any visible component for its detailed description.';
+}
+archNodes.forEach(n=>{n.addEventListener('click',()=>selectArchNode(n.dataset.node));n.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selectArchNode(n.dataset.node)}})});
+document.querySelectorAll('.arch-action[data-flow]').forEach(b=>b.addEventListener('click',()=>filterArch(b.dataset.flow)));
+$('arch-reset').addEventListener('click',()=>filterArch('all'));
+filterArch('all');
+
+const fmt=(v,n=3)=>v==null?'—':Number(v).toFixed(n);
+function configureModes(){
+ const f=$('raw').files[0]; if(!f)return;
+ const ext=f.name.split('.').pop().toLowerCase();
+ const box=$('mode-options');
+ if(['png','jpg','jpeg','bmp','webp','tif','tiff'].includes(ext)){
+  box.innerHTML=`<label class="mode"><input type="checkbox" id="rgb_original"> RGB Original (no processing)</label>
+  <label class="mode"><input type="checkbox" id="rgb_denoise" checked> RGB Denoise (Strong NLM)</label>
+  <label class="mode"><input type="checkbox" id="rgb_denoise_detail"> RGB Detail-Preserving Denoise (Medium NLM)</label>
+  <label class="mode"><input type="checkbox" id="rgb_full_enhance" checked> Full RGB Enhancement (recommended)</label>`;
+ }else{
+  box.innerHTML=`<label class="mode"><input type="checkbox" id="traditional" checked> Traditional pipeline</label>
+  <label class="mode"><input type="checkbox" id="learned" checked> Neural restoration</label>
+  <label class="mode"><input type="checkbox" id="hybrid" checked> Hybrid pipeline</label>`;
+ }
+}
+$('raw').addEventListener('change',configureModes);
+$('run').addEventListener('click',async()=>{
+ const raw=$('raw').files[0]; if(!raw){$('status').textContent='Choose a Bayer RAW file first.';$('status').className='status error';return}
+ const isRgb=['png','jpg','jpeg','bmp','webp','tif','tiff'].includes(raw.name.split('.').pop().toLowerCase());
+ const modeNames=isRgb?['rgb_original','rgb_denoise','rgb_denoise_detail','rgb_full_enhance']:['traditional','learned','hybrid'];
+ const modes=modeNames.filter(m=>$(m)?.checked);if(!modes.length){$('status').textContent='Select at least one processing mode.';$('status').className='status error';return}
+ const fd=new FormData();fd.append('file',raw);fd.append('pattern',$('pattern').value);fd.append('modes',modes.join(','));
+ const ref=$('reference').files[0];if(ref)fd.append('reference',ref);
+ $('run').disabled=true;$('run').textContent='Processing…';$('status').className='status';$('status').textContent='Loading model if needed and processing RAW. First run may take longer.';
+ try{
+  const response=await fetch('/api/process',{method:'POST',body:fd});const data=await response.json();if(!response.ok)throw new Error(data.detail||'Processing failed');
+  const perf=data.performance||{};
+  $('host-latency').textContent=perf.end_to_end_ms!=null?fmt(perf.end_to_end_ms,1)+' ms':'—';
+  $('host-throughput').textContent=perf.throughput_mpix_s!=null?fmt(perf.throughput_mpix_s,2)+' MP/s':'—';
+  $('host-cpu').textContent=perf.cpu_utilization_percent!=null?fmt(perf.cpu_utilization_percent,0)+'%':'—';
+  $('host-ram').textContent=perf.process_ram_mb!=null?fmt(perf.process_ram_mb,0)+' MB':'—';
+  $('gpu-status').textContent=perf.gpu||'CPU only';
+  $('host-vram').textContent=perf.vram_mb==null?'N/A':fmt(perf.vram_mb,0)+' MB';
+  $('model-precision').textContent=perf.model_precision||'—';
+  $('perf-note').textContent='Measured on the host running AURORA. Processing time is end-to-end for this request; RAM is backend process resident memory. GPU/VRAM are unavailable in CPU-only mode.';
+  $('status').className='status ok';$('status').textContent=`Completed ${raw.name} · ${data.input_shape.join(' × ')} ${data.input_type==='display_rgb'?'RGB':(data.input_type==='raw_rendered_rgb_fallback'?'RAW → RGB fallback':'Bayer RAW')} · ${data.device.toUpperCase()} processing${data.warning?' · '+data.warning:''}`;
+  const c=data.conditions;$('conditions').innerHTML=[['Noise estimate',c.noise_sigma],['Mean luminance',c.mean_luma],['Clipped fraction',c.clip_frac],['Near-black fraction',c.black_frac],['Edge density',c.edge_density],['Colour cast',c.cast]].map(([k,v])=>`<div class="cond"><span>${k}</span><b>${fmt(v,4)}</b></div>`).join('');
+  $('results').innerHTML=Object.entries(data.results).map(([mode,item])=>{const m=item.metrics||{};const fusion=item.fusion?`Fusion: learned ${(item.fusion.learned_weight*100).toFixed(0)}% · ${item.fusion.reason}`:'';return `<article class="result"><img src="${item.image}" alt="${mode} output"><div class="meta"><h3>${mode.replaceAll('_',' ').toUpperCase()}</h3><div class="stats">${item.metrics?`PSNR ${fmt(m.PSNR,2)} dB · SSIM ${fmt(m.SSIM,4)}\nΔE ${fmt(m.DeltaE2000,3)} · LPIPS ${m.LPIPS==null?'Unavailable':fmt(m.LPIPS,4)}`:'No reference supplied'}${fusion?'\n'+fusion:''}</div><a class="download" href="${item.image}" download="aurora_${mode}.png">Download output ↓</a></div></article>`}).join('');
+  const first=Object.values(data.results).find(x=>x.metrics)?.metrics;
+  $('metrics').innerHTML=first?[['PSNR',fmt(first.PSNR,3)+' dB'],['SSIM',fmt(first.SSIM,4)],['Delta E 2000',fmt(first.DeltaE2000,3)],['LPIPS',first.LPIPS==null?'Unavailable (optional dependency)':fmt(first.LPIPS,4)]].map(([k,v])=>`<div class="metric"><span>${k}</span><b>${v}</b></div>`).join(''):`<div class="metric"><span>Reference metrics</span><b>Not supplied</b></div>`;
+ }catch(e){$('status').className='status error';$('status').textContent=e.message}
+ finally{$('run').disabled=false;$('run').textContent='Process image'}
+});
+</script></body></html>

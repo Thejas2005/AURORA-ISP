@@ -1,0 +1,4 @@
+-r requirements-core.txt
+# Install a PyTorch build matching your CUDA/CPU environment from pytorch.org
+# torch
+# torchvision
