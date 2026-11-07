@@ -6,6 +6,7 @@ A modular, hybrid image signal processor that turns Bayer sensor data into displ
 
 Built for the Computer Vision Hackathon 2026, problem P2: *Intelligent and Computationally Efficient Smartphone ISP*.
 
+![AURORA system architecture](aurora_architecture.png)
 
 ---
 
